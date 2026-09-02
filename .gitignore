@@ -1,0 +1,25 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring
+HELP.md
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Build
+build/
+dist/
+
+# Environment / secrets
+.env
+src/main/resources/application.properties
+
+# Logs
+*.log
