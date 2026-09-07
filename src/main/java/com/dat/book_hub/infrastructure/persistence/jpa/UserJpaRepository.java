@@ -9,9 +9,9 @@ import com.dat.book_hub.domain.entity.User;
 
 public interface UserJpaRepository extends JpaRepository<User, Long> {
     
-    Optional<User> findByUsername(@Param("username") String username);
+    Optional<User> findUserIncludeBookByUsername(@Param("username") String username);
 
     
-    User findLoginByUsername(@Param("username") String username);
+    User findUserByUsername(@Param("username") String username);
 
 }

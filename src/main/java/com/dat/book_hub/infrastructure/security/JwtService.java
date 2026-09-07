@@ -9,6 +9,7 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,35 +29,43 @@ public class JwtService {
 	@Value("${jwt.refreshExpiration}")
 	private long refreshExpiration;
 
+	@Async("taskExecutor")
 	public String extractUsername(String token) {
 		return extractClaim(token, claims -> claims.getSubject());
 	}
 
+	@Async("taskExecutor")
 	public String extractTokenType(String token) {
 		return extractClaim(token, claims -> claims.get("token_type", String.class));
 	}
 
+	@Async("taskExecutor")
 	public String extractRole(String token) {
 		return extractClaim(token, claims -> claims.get("role", String.class));
 	}
 
+	@Async("taskExecutor")
 	public String generateToken(UserDetails userDetails) {
 		return generateToken(new HashMap<>(), userDetails);
 	}
 
+	@Async("taskExecutor")
 	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
 		return generateToken(extraClaims, userDetails, jwtExpiration, "access");
 	}
 
+	@Async("taskExecutor")
 	public String generateRefreshToken(UserDetails userDetails) {
 		return generateToken(new HashMap<>(), userDetails, refreshExpiration, "refresh");
 	}
 
+	@Async("taskExecutor")
 	public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
 		String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
 		return "refresh".equals(tokenType) && isTokenValid(token, userDetails.getUsername(), tokenType);
 	}
 
+	@Async("taskExecutor")
 	private String generateToken(
 			Map<String, Object> extraClaims,
 			UserDetails userDetails,
@@ -78,6 +87,7 @@ public class JwtService {
 				.compact();
 	}
 
+	@Async("taskExecutor")
 	public Claims extractAllClaims(String token) {
 
         return Jwts.parser()
@@ -87,6 +97,7 @@ public class JwtService {
                 .getPayload();
     }
 
+	@Async("taskExecutor")
 	public boolean isTokenValid(
             String token,
             String username,
@@ -114,14 +125,17 @@ public class JwtService {
         }
     }
 
+	@Async("taskExecutor")
 	private boolean isTokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
 	}
 
+	@Async("taskExecutor")
 	private Date extractExpiration(String token) {
 		return extractClaim(token, claims -> claims.getExpiration());
 	}
 
+	@Async("taskExecutor")
 	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		Claims claims = Jwts.parser()
 				.verifyWith(getSigningKey())
@@ -131,6 +145,7 @@ public class JwtService {
 		return claimsResolver.apply(claims);
 	}
 
+	@Async("taskExecutor")
 	private SecretKey getSigningKey() {
 		return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 	}

@@ -1,18 +1,21 @@
 package com.dat.book_hub.application.service;
 
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dat.book_hub.application.dto.request.LoginRequestDto;
 import com.dat.book_hub.application.dto.request.RegisterRequestDto;
 import com.dat.book_hub.application.dto.response.LoginResponseDto;
+import com.dat.book_hub.application.dto.response.RefreshTokenResponseDto;
 import com.dat.book_hub.application.dto.response.RegisterResponseDto;
 import com.dat.book_hub.application.dto.response.UserResponseDto;
 import com.dat.book_hub.application.mapping.UserMapper;
 import com.dat.book_hub.application.usecase.UserUseCase;
 import com.dat.book_hub.domain.entity.User;
 import com.dat.book_hub.domain.repository.UserRepository;
+import com.dat.book_hub.infrastructure.security.DatabaseUserDetailsService;
 import com.dat.book_hub.infrastructure.security.JwtService;
 import com.dat.book_hub.infrastructure.security.SecurityUserDetails;
 
@@ -31,29 +34,33 @@ public class UserService implements UserUseCase {
         this.userMapper = userMapper;
     }
 
+    /**
+    *   @param: RegisterRequestDto
+    *   register service to hash password, 
+    *   create new user and generate AccessToken and RefreshToken
+    */
     @Async
     @Override
     public RegisterResponseDto registerUser(RegisterRequestDto registerRequestDto) {
         User newUser = this.userMapper.toEntity(registerRequestDto);
         newUser.setPassword(passwordEncoder.encode(registerRequestDto.password()));
-        boolean isCreated = this.userRepository.createUser(newUser);
-        if (!isCreated) {
-            throw new RuntimeException("Failed to create user");
+        User user = this.userRepository.createUser(newUser);
+        if (user == null) {
+            return null;
         }
-        User savedUser = this.userRepository.findByUsername(newUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found after creation"));
-        SecurityUserDetails userDetails = new SecurityUserDetails(newUser);
+      
+        SecurityUserDetails userDetails = new SecurityUserDetails(user);
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         RegisterResponseDto registerResponseDto = new RegisterResponseDto(
                 accessToken,
                 refreshToken,
-                newUser.getUsername(),
-                newUser.getEmail(),
-                newUser.getRole(),
-                newUser.getCreatedAt(),
-                savedUser.getUpdatedAt()
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
         );
 
         return registerResponseDto;
@@ -84,6 +91,32 @@ public class UserService implements UserUseCase {
     @Override
     public UserResponseDto getUserAndBook(String username) {
         return this.userMapper.toResponseDto(this.userRepository.findByUsername(username));
+    }
+
+
+    /*
+        @Param: refreshToken
+        validate refreshToken if not valid create new refreshToken and save to database
+     */
+    @Override
+    public RefreshTokenResponseDto refresh(String refreshToken) {
+
+        String username = this.jwtService.extractUsername(refreshToken);
+        String tokenType = this.jwtService.extractTokenType(refreshToken);
+
+        if (this.jwtService.isTokenValid(refreshToken, username, tokenType) == false) {
+            DatabaseUserDetailsService databaseUserDetailsService = new DatabaseUserDetailsService(userRepository);
+
+            UserDetails userDetails = databaseUserDetailsService.loadUserByUsername(username);
+
+            String newAccessToken = this.jwtService.generateToken(userDetails);
+            String newRefreshToken = this.jwtService.generateRefreshToken(userDetails);
+
+            return new RefreshTokenResponseDto(newAccessToken,
+                    newRefreshToken);
+        }
+
+        return null;
     }
 
 }

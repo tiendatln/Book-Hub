@@ -4,12 +4,33 @@
 
 ---
 
-## ✨ Features
-
-
 ## 🖼️ Screenshots
 
 ## 🏗️ Architecture
+book_hub
+├── domain
+│   ├── entity
+│   └── repository
+│   
+│
+├── application
+│   ├── dto
+│   │   ├── request
+│   │   └── response
+│   ├── service
+│   ├── mapping
+│   └── usecase
+│
+├── infrastructure
+│   ├── persistence
+│   │    ├── jpaRepository
+│   │    └── repository
+│   └── security
+│  
+│
+└── presentation
+    ├── controller
+    └── exception
 
 ## ✨ Features
 
@@ -46,6 +67,17 @@
 
 ## 🛠️ Tech Stack
 
+| Category | Technology |
+|---|---|
+| Backend | Java, Spring Boot |
+| Security | Spring Security, JWT |
+| Database | MySQL |
+| ORM | Spring Data JPA, Hibernate |
+| Migration | Flyway |
+| API | RESTful API |
+| Build Tool | Maven |
+| Version Control | Git, GitHub |
+
 ## 📂 Project Structure
 
 ## 🚀 Getting Started
@@ -58,6 +90,26 @@
 ## 🔐 Authentication
 
 ## 📡 API
+
+### Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/user/register` | Register user |
+| POST | `/user/login` | Login |
+| POST | `/user/refresh` | Refresh access token |
+| POST | `/user/logout` | Logout |
+| PUT | `/user/changePassword` | Logout |
+
+### Books
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/book/getAll/{page}` | Get books |
+| GET | `/api/books/{id}` | Get book details |
+| POST | `/api/books` | Create book |
+| PUT | `/api/books/{id}` | Update book |
+| DELETE | `/api/books/{id}` | Delete book |
 
 ## 🗄️ Database
 
@@ -85,8 +137,6 @@ Main entities:
 
 ## 📝 Roadmap
 
-## 📝 Roadmap
-
 - [x] User authentication
 - [x] JWT access token
 - [x] Refresh token
@@ -103,3 +153,4 @@ Main entities:
 
 ## 👤 Author
 
+[LE NGUYEN TIEN DAT](https://github.com/tiendatln)

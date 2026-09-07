@@ -21,27 +21,27 @@ public class UserRepositoryImpl implements UserRepository {
     @Async
     @Override
     public Optional<User> findByUsername(String username) {
-        return this.userRepository.findByUsername(username);
+        return this.userRepository.findUserIncludeBookByUsername(username);
     }
 
     @Async
     @Override
-    public boolean createUser(User user) {
+    public User createUser(User user) {
         this.userRepository.save(user);
-        return true;
+        return this.userRepository.findUserByUsername(user.getUsername());
     }
 
     @Async
     @Override
-    public boolean updateUser(User user) {
+    public User updateUser(User user) {
         this.userRepository.save(user);
-        return true;
+        return this.userRepository.findUserByUsername(user.getUsername());
     }
 
     @Async
     @Override
     public User findUserLogin(String username) {
-        return this.userRepository.findLoginByUsername(username);
+        return this.userRepository.findUserByUsername(username);
     }
 
 }
