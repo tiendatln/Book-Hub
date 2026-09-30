@@ -12,4 +12,5 @@ public interface UserRepository{
     User createUser(User user);
     User updateUser(User user);
     User findUserLogin(String username);
+    Optional<User> getUserAndBookByUsername(String username);
 }

@@ -14,11 +14,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Setter 
 @Getter 
+@NoArgsConstructor
 @AllArgsConstructor 
 @Table(name="Comments")
 public class Comment {

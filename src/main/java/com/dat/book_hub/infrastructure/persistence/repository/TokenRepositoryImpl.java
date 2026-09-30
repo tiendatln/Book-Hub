@@ -8,12 +8,12 @@ import com.dat.book_hub.domain.entity.RefreshToken;
 import com.dat.book_hub.domain.repository.TokenRepository;
 import com.dat.book_hub.infrastructure.persistence.jpa.TokenJpaReponsitory;
 
-@Repository 
+@Repository
 public class TokenRepositoryImpl implements TokenRepository {
 
     private final TokenJpaReponsitory tokenJpaReponsitory;
 
-    public TokenRepositoryImpl(TokenJpaReponsitory jpaReponsitory){
+    public TokenRepositoryImpl(TokenJpaReponsitory jpaReponsitory) {
         this.tokenJpaReponsitory = jpaReponsitory;
     }
 
@@ -34,6 +34,12 @@ public class TokenRepositoryImpl implements TokenRepository {
     @Override
     public boolean deleteRefreshToken(String token) {
         return this.tokenJpaReponsitory.deleteByToken(token) > 0;
+    }
+
+    @Override
+    public Optional<RefreshToken> getRefreshTokenByToken(String Token) {
+        // TODO Auto-generated method stub
+        return this.tokenJpaReponsitory.findTokenByToken(Token);
     }
 
 }

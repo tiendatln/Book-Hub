@@ -2,7 +2,6 @@ package com.dat.book_hub.infrastructure.persistence.repository;
 
 import java.util.Optional;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import com.dat.book_hub.domain.entity.User;
@@ -18,30 +17,32 @@ public class UserRepositoryImpl implements UserRepository {
         this.userRepository = userRepository;
     }
 
-    @Async
     @Override
     public Optional<User> findByUsername(String username) {
-        return this.userRepository.findUserIncludeBookByUsername(username);
+        return Optional.ofNullable(this.userRepository.findUserByUsername(username));
     }
 
-    @Async
     @Override
     public User createUser(User user) {
         this.userRepository.save(user);
         return this.userRepository.findUserByUsername(user.getUsername());
     }
 
-    @Async
     @Override
     public User updateUser(User user) {
         this.userRepository.save(user);
         return this.userRepository.findUserByUsername(user.getUsername());
     }
 
-    @Async
     @Override
     public User findUserLogin(String username) {
         return this.userRepository.findUserByUsername(username);
+    }
+
+    @Override
+    public Optional<User> getUserAndBookByUsername(String username) {
+        // TODO Auto-generated method stub
+        return this.userRepository.findUserIncludeBookByUsername(username);
     }
 
 }

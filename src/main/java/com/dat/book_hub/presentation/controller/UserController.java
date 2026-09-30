@@ -19,6 +19,8 @@ import com.dat.book_hub.application.dto.response.RefreshTokenResponseDto;
 import com.dat.book_hub.application.dto.response.RegisterResponseDto;
 import com.dat.book_hub.application.dto.response.UserResponseDto;
 import com.dat.book_hub.application.usecase.UserUseCase;
+import com.dat.book_hub.infrastructure.security.DatabaseUserDetailsService;
+import com.dat.book_hub.infrastructure.security.JwtService;
 
 @RestController
 @RequestMapping("/user")
@@ -26,7 +28,7 @@ public class UserController {
 
     private final UserUseCase userUseCase;
 
-    public UserController(UserUseCase userUseCase) {
+    public UserController(UserUseCase userUseCase, JwtService jwtService, DatabaseUserDetailsService databaseUserDetailsService) {
         this.userUseCase = userUseCase;
     }
 
@@ -40,23 +42,35 @@ public class UserController {
         ResponseCookie cookie = ResponseCookie.from("refresh_token", response.refreshToken())
                 .httpOnly(true)
                 .secure(false)
-                .path("/user/register")
+                .path("/user/refresh")
                 .maxAge(7 * 24 * 60 * 60)
                 .sameSite("Strict")
                 .build();
         return ResponseEntity.status(200)
-        .header(HttpHeaders.SET_COOKIE, cookie.toString())
-        .body(new DataResponse<>("Login success!", response));
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new DataResponse<>("Login success!", response));
     }
 
     @PostMapping("register")
-    public ResponseEntity<RegisterResponseDto> postMethodName(@RequestBody RegisterRequestDto registerRequestDto) {
+    public ResponseEntity<DataResponse<RegisterResponseDto>> postMethodName(@RequestBody RegisterRequestDto registerRequestDto) {
         //TODO: process POST request
         RegisterResponseDto response = this.userUseCase.registerUser(registerRequestDto);
-        return ResponseEntity.ok(response);
+        if (response == null) {
+            return ResponseEntity.status(401).body(new DataResponse<>("Login failed!", null));
+        }
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", response.refreshToken())
+                .httpOnly(true)
+                .secure(false)
+                .path("/user/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
+        return ResponseEntity.status(200)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new DataResponse<>("Login success!", response));
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user-username")
     public ResponseEntity<?> getMethodName(@RequestParam String username) {
         UserResponseDto userResponseDto = this.userUseCase.getUserByUsername(username);
 
@@ -64,19 +78,25 @@ public class UserController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> postMethodName(@CookieValue String refreshToken) {
+    public ResponseEntity<?> postMethodName(@CookieValue("refresh_token") String refreshToken) {
         //TODO: process POST request
 
         RefreshTokenResponseDto refreshTokenResponseDto = this.userUseCase.refresh(refreshToken);
-
-        if (refreshTokenResponseDto != null) {
-            return ResponseEntity.ok(refreshTokenResponseDto);
+        if (refreshTokenResponseDto == null) {
+            return ResponseEntity.status(404).body(new DataResponse<>("No Entity response!", refreshTokenResponseDto));
         }
 
-        return ResponseEntity.status(404).body(new DataResponse<>(
-                "user not found!",
-                refreshTokenResponseDto
-        ));
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshTokenResponseDto.refreshToken())
+                .httpOnly(true)
+                .secure(false)
+                .path("/user/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.status(200)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new DataResponse<>("Refresh success!", refreshTokenResponseDto));
     }
 
 }

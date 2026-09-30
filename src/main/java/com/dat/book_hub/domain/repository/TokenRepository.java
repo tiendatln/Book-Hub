@@ -4,8 +4,13 @@ import java.util.Optional;
 
 import com.dat.book_hub.domain.entity.RefreshToken;
 
-public interface  TokenRepository {
+public interface TokenRepository {
+
     Optional<RefreshToken> createRefreshToken(RefreshToken token);
+
     Optional<RefreshToken> updateRefreshToken(RefreshToken token);
+
     boolean deleteRefreshToken(String token);
+
+    Optional<RefreshToken> getRefreshTokenByToken(String Token);
 }

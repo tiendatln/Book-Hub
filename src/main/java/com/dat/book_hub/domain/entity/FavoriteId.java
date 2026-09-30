@@ -6,6 +6,14 @@ public class FavoriteId implements Serializable {
     private Long book;
     private Long user;
 
+    public FavoriteId() {
+    }
+
+    public FavoriteId(Long book, Long user) {
+        this.book = book;
+        this.user = user;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

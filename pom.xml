@@ -77,8 +77,9 @@
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.6.3</version>
+			<version>1.6.0</version>
 		</dependency>
+
 
 
 		<!-- JJWT API & Implementation -->
@@ -123,7 +124,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -151,8 +152,9 @@
 								<path>
 									<groupId>org.mapstruct</groupId>
 									<artifactId>mapstruct-processor</artifactId>
-									<version>1.6.3</version>
+									<version>1.6.0</version>
 								</path>
+
 							</annotationProcessorPaths>
 						</configuration>
 					</execution>
@@ -171,7 +173,7 @@
 								<path>
 									<groupId>org.mapstruct</groupId>
 									<artifactId>mapstruct-processor</artifactId>
-									<version>1.6.3</version>
+									<version>1.6.0</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>

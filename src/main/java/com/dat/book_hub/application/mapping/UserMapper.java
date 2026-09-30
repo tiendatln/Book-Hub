@@ -18,5 +18,9 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     User toEntity(RegisterRequestDto registerRequestDto);
 
-    UserResponseDto toResponseDto(Optional<User> user);
+    UserResponseDto toUserResponseDto(User user);
+
+    default UserResponseDto toUserResponseDto(Optional<User> user) {
+        return user.map(this::toUserResponseDto).orElse(null);
+    }
 }

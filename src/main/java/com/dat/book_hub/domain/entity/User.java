@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@AllArgsConstructor
+
 @Entity
 @Table(name = "Users", indexes = {
         @Index(name = "idx_users_username", columnList = "username"),
@@ -45,6 +44,10 @@ public class User {
     private String role = "USER";
     @Column(nullable = false)
     private boolean enabled = true;
+    @Column(nullable=true)
+    private String provider;
+    @Column(nullable=true)
+    private String provider_id;
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

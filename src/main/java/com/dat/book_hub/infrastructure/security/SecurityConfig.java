@@ -72,10 +72,11 @@ public class SecurityConfig {
                                 "/user/refresh",
                                 "/user/register",
                                 "/user/getRole/*",
-                        "/user/getAllUser")
+                                "/user/user-username",
+                                "/book/get-book")
                         .permitAll()
 
-                        .requestMatchers("/user/getAllUser/1111").hasRole("Admin")
+                        .requestMatchers("/book/create-book").hasRole("USER")
 
                         .anyRequest()
                         .authenticated())
