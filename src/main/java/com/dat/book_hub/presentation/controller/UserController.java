@@ -37,7 +37,7 @@ public class UserController {
         //TODO: process POST request
         LoginResponseDto response = this.userUseCase.loginUser(loginRequestDto);
         if (response == null) {
-            return ResponseEntity.status(401).body(new DataResponse<>("Login failed!", null));
+            return ResponseEntity.status(401).body(new DataResponse<LoginResponseDto>("Login failed!", null));
         }
         ResponseCookie cookie = ResponseCookie.from("refresh_token", response.refreshToken())
                 .httpOnly(true)
@@ -48,7 +48,7 @@ public class UserController {
                 .build();
         return ResponseEntity.status(200)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new DataResponse<>("Login success!", response));
+                .body(new DataResponse<LoginResponseDto>("Login success!", response));
     }
 
     @PostMapping("register")
@@ -56,7 +56,7 @@ public class UserController {
         //TODO: process POST request
         RegisterResponseDto response = this.userUseCase.registerUser(registerRequestDto);
         if (response == null) {
-            return ResponseEntity.status(401).body(new DataResponse<>("Login failed!", null));
+            return ResponseEntity.status(401).body(new DataResponse<RegisterResponseDto>("Login failed!", null));
         }
         ResponseCookie cookie = ResponseCookie.from("refresh_token", response.refreshToken())
                 .httpOnly(true)
@@ -67,7 +67,7 @@ public class UserController {
                 .build();
         return ResponseEntity.status(200)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new DataResponse<>("Login success!", response));
+                .body(new DataResponse<RegisterResponseDto>("Login success!", response));
     }
 
     @GetMapping("/user-username")
@@ -80,6 +80,8 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<?> postMethodName(@CookieValue("refresh_token") String refreshToken) {
         //TODO: process POST request
+
+        
 
         RefreshTokenResponseDto refreshTokenResponseDto = this.userUseCase.refresh(refreshToken);
         if (refreshTokenResponseDto == null) {

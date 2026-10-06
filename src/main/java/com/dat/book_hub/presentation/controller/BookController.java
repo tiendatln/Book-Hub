@@ -29,7 +29,7 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @GetMapping("/get-book")
+    @GetMapping("/get-book-user")
     public ResponseEntity<ListDataResponse<BookResponse>> getBookByUsername(@RequestParam("username") String username) {
         List<BookResponse> bookList = this.bookService.getBookByUsername(username);
         if (bookList.isEmpty()) {
@@ -42,13 +42,34 @@ public class BookController {
     public ResponseEntity<DataResponse<BookResponse>> createBook(
             @RequestBody BookRequest bookRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
+        if (bookRequest == null) {
+            return ResponseEntity.badRequest().body(new DataResponse<>("Book request is required.", null));
+        }
+
+        if (userDetails == null || userDetails.getUsername() == null || userDetails.getUsername().isBlank()) {
+            return ResponseEntity.status(401).body(new DataResponse<>("Authentication required to create a book.", null));
+        }
+
         BookResponse bookResponse = this.bookService.createBook(bookRequest, userDetails.getUsername());
 
-        if(bookResponse == null){
-            return ResponseEntity.status(500).body(new DataResponse<>("Can not create book!", bookResponse));
+        if (bookResponse == null) {
+            return ResponseEntity.status(500).body(new DataResponse<>("Can not create book!", null));
         }
-        
+
         return ResponseEntity.status(200).body(new DataResponse<>("Book created success!", bookResponse));
+    }
+
+    @GetMapping("/get-book-search-page")
+    public ResponseEntity<ListDataResponse<BookResponse>> getBookPage(
+        @RequestParam(required = false, defaultValue = "") String search,
+        @RequestParam(required = false, defaultValue = "") String author,
+        @RequestParam(required = false, defaultValue = "") String tag,
+        @RequestParam(defaultValue = "1") int start) {
+        List<BookResponse> bookList = this.bookService.getBooksPage(search, author, tag, start, 10);
+        if (bookList.isEmpty()) {
+            return ResponseEntity.ok(new ListDataResponse<>("No books found for the specified page.", bookList));
+        }
+        return ResponseEntity.ok(new ListDataResponse<>("Get list success!", bookList));
     }
     
 

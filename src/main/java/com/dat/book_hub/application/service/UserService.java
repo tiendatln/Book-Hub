@@ -143,11 +143,11 @@ public class UserService implements UserUseCase {
     public RefreshTokenResponseDto refresh(String refreshToken) {
 
         String username = this.jwtService.extractUsername(refreshToken);
-        String tokenType = this.jwtService.extractTokenType(refreshToken);
         Claims reClaims = this.jwtService.extractAllClaims(refreshToken);
         Optional<RefreshToken> rToken = this.tokenRepository.getRefreshTokenByToken(refreshToken);
 
-        if (this.jwtService.isTokenValid(refreshToken, username, tokenType) == false) {
+        if (this.jwtService.isRefreshTokenValid(refreshToken, username) == true && rToken.isPresent()) {
+            log.info("[RefreshToken] refresh - refreshToken is valid={}", refreshToken);
             DatabaseUserDetailsService databaseUserDetailsService = new DatabaseUserDetailsService(userRepository);
 
             UserDetails userDetails = databaseUserDetailsService.loadUserByUsername(username);
@@ -155,8 +155,9 @@ public class UserService implements UserUseCase {
             String newAccessToken = this.jwtService.generateToken(userDetails);
             if (reClaims.getIssuedAt().after((new Date()))) {
                 String newRefreshToken = this.jwtService.generateRefreshToken(userDetails);
+                RefreshToken nToken = new RefreshToken(rToken.get().getRefreshTokenId(), newRefreshToken, null, null, rToken.get().getUser());
 
-                Optional<RefreshToken> updatedToken = this.tokenRepository.updateRefreshToken(rToken.orElseThrow());
+                Optional<RefreshToken> updatedToken = this.tokenRepository.updateRefreshToken(nToken, rToken.get().getRefreshTokenId());
 
                 if (updatedToken.isEmpty()) {
                     return null;

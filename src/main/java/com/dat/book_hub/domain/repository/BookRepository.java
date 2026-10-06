@@ -11,5 +11,5 @@ public interface BookRepository {
     List<Book> getBookByUserName(String username);
     Book createBook(Book book);
     Book updateBook(Book book);
-    List<Book> searchBookAndPaging(String search,String author, String tag, int start, int current);
+    List<Book> getBooksPage(String search,String author, String tag, int start, int current);
 }

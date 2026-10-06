@@ -76,7 +76,9 @@ public class SecurityConfig {
                                 "/book/get-book")
                         .permitAll()
 
-                        .requestMatchers("/book/create-book").hasRole("USER")
+                        .requestMatchers("/book/create-book-user", 
+                        "/book/get-book-search-page", 
+                        "/book/get-book-user").hasRole("USER")
 
                         .anyRequest()
                         .authenticated())

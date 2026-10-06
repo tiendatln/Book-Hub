@@ -8,7 +8,7 @@ public interface TokenRepository {
 
     Optional<RefreshToken> createRefreshToken(RefreshToken token);
 
-    Optional<RefreshToken> updateRefreshToken(RefreshToken token);
+    Optional<RefreshToken> updateRefreshToken(RefreshToken token, Long refreshTokenId);
 
     boolean deleteRefreshToken(String token);
 

@@ -2,6 +2,7 @@ package com.dat.book_hub.application.service;
 
 import java.util.List;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.dat.book_hub.application.dto.request.Book.BookRequest;
@@ -11,7 +12,6 @@ import com.dat.book_hub.application.usecase.BookUseCase;
 import com.dat.book_hub.domain.entity.Book;
 import com.dat.book_hub.domain.repository.BookRepository;
 import com.dat.book_hub.domain.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class BookService implements BookUseCase{
@@ -19,6 +19,7 @@ public class BookService implements BookUseCase{
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final BookMapper bookMapper;
+    
 
     public BookService(BookRepository bookRepository, UserRepository userRepository, BookMapper bookMapper){
         this.bookRepository = bookRepository;
@@ -39,6 +40,12 @@ public class BookService implements BookUseCase{
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username)));
 
         return this.bookMapper.tBookResponse(this.bookRepository.createBook((newBook)));
+    }
+
+    @Override
+    public List<BookResponse> getBooksPage(String search, String author, String tag, int start, int current) {
+        List<Book> books = this.bookRepository.getBooksPage(search, author, tag, start, current);
+        return this.bookMapper.TListBookResponse(books);
     }
 
 }

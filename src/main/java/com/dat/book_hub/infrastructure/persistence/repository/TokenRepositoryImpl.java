@@ -26,9 +26,9 @@ public class TokenRepositoryImpl implements TokenRepository {
     }
 
     @Override
-    public Optional<RefreshToken> updateRefreshToken(RefreshToken token) {
+    public Optional<RefreshToken> updateRefreshToken(RefreshToken token, Long refreshTokenId) {
         this.tokenJpaReponsitory.save(token);
-        return this.tokenJpaReponsitory.findTokenByToken(token.getToken());
+        return this.tokenJpaReponsitory.findTokenByRefreshTokenId(refreshTokenId);
     }
 
     @Override

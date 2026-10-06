@@ -36,9 +36,9 @@ public class BookRepositoryImpl implements BookRepository{
     }
 
     @Override
-    public List<Book> searchBookAndPaging(String search, String author, String tag, int start, int current) {
+    public List<Book> getBooksPage(String search, String author, String tag, int start, int current) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchBookAndPaging'");
+        return this.bookRepository.findBooksPage(search, author, tag, start, current);
     }
 
 }

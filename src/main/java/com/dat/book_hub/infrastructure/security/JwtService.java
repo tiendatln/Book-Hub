@@ -52,9 +52,9 @@ public class JwtService {
 		return generateToken(new HashMap<>(), userDetails, refreshExpiration, "refresh");
 	}
 
-	public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
+	public boolean isRefreshTokenValid(String token, String username) {
 		String tokenType = extractClaim(token, claims -> claims.get("token_type", String.class));
-		return "refresh".equals(tokenType) && isTokenValid(token, userDetails.getUsername(), tokenType);
+		return "refresh".equals(tokenType) && isTokenValid(token, username, tokenType);
 	}
 
 	private String generateToken(

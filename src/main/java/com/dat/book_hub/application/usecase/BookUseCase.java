@@ -9,4 +9,5 @@ public interface BookUseCase {
     List<BookResponse> getBookByUsername(String username);
 
     BookResponse createBook(BookRequest bookRequest, String username);
+    List<BookResponse> getBooksPage(String search, String author, String tag, int start, int current);
 }

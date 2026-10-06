@@ -12,4 +12,5 @@ public interface TokenJpaReponsitory extends JpaRepository<RefreshToken, Long> {
 
     int deleteByToken(String token);
 
+    Optional<RefreshToken> findTokenByRefreshTokenId(Long tokenId);
 }
