@@ -27,6 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "Books", indexes = {
+        @jakarta.persistence.Index(name = "idx_book_id", columnList = "book_id"),
         @jakarta.persistence.Index(name = "idx_title", columnList = "title"),
         @jakarta.persistence.Index(name = "idx_author", columnList = "author"),
         @jakarta.persistence.Index(name = "idx_isbn", columnList = "isbn")
@@ -55,7 +56,7 @@ public class Book {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy="book", fetch=FetchType.LAZY)

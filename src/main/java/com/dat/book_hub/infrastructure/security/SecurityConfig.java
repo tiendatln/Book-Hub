@@ -22,71 +22,73 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-	}
+        public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        }
 
-	@Bean
-    public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(16, 32, 1, 65536, 3);
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new Argon2PasswordEncoder(16, 32, 1, 65536, 3);
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+                CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-                List.of("https://localhost:5173"));
+                configuration.setAllowedOrigins(
+                                List.of("https://localhost:5173"));
 
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedMethods(
+                                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        configuration.setAllowedHeaders(
-                List.of("*"));
+                configuration.setAllowedHeaders(
+                                List.of("*"));
 
-        configuration.setAllowCredentials(true);
+                configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", configuration);
+                source.registerCorsConfiguration("/**", configuration);
 
-        return source;
-    }
+                return source;
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
 
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
+                                .cors(Customizer.withDefaults())
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(
-                                "/user/login",
-                                "/user/refresh",
-                                "/user/register",
-                                "/user/getRole/*",
-                                "/user/user-username",
-                                "/book/get-book")
-                        .permitAll()
+                                                .requestMatchers(
+                                                                "/user/login",
+                                                                "/user/refresh",
+                                                                "/user/register",
+                                                                "/user/getRole/*",
+                                                                "/user/user-username",
+                                                                "/book/get-book",
+                                                                "/tag/create-tag")
+                                                .permitAll()
 
-                        .requestMatchers("/book/create-book-user", 
-                        "/book/get-book-search-page", 
-                        "/book/get-book-user").hasRole("USER")
+                                                .requestMatchers("/book/create-book",
+                                                                "/book/get-book-search-page",
+                                                                "/book/get-book-user")
+                                                .hasRole("USER")
 
-                        .anyRequest()
-                        .authenticated())
+                                                .anyRequest()
+                                                .authenticated())
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                                .addFilterBefore(
+                                                jwtAuthenticationFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

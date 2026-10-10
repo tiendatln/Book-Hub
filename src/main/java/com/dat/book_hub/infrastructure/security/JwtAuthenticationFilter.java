@@ -18,74 +18,110 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
-	public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-		this.jwtService = jwtService;
-		this.userDetailsService = userDetailsService;
-	}
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserDetailsService userDetailsService
+    ) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
 
-	
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        // TODO Auto-generated method stub
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        String authHeadeString = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        if (authHeadeString == null || !authHeadeString.startsWith("Bearer ")) {
+        // 1. Không có Bearer Token
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authHeadeString.substring(7);
+        String jwt = authHeader.substring(7);
 
         try {
+            // 2. Lấy thông tin JWT
             String username = jwtService.extractUsername(jwt);
             String tokenType = jwtService.extractTokenType(jwt);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (tokenType.equals("access") && username != null
-                    && userDetails != null) {
-                // Set authentication in the context
 
-                if (userDetails.isEnabled() == false) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
+            // 3. Kiểm tra token
+            if (username == null
+                    || !"access".equals(tokenType)
+                    || !jwtService.isTokenValid(jwt, username, "access")) {
 
-                    response.getWriter().write("""
-                    {
-                        "code": 401,
-                        "success": false,
-                        "message": "account is disabled"
-                    }
-                    """);
-                }
-                if (jwtService.isTokenValid(jwt, username, tokenType)) {
-                    // Set authentication in the context
-                    // You can use SecurityContextHolder to set the authentication
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    // Set the authentication in the SecurityContext
-                    // SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    // Proceed with the filter chain
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
+                sendError(response, 401, "Invalid or expired JWT token");
+                return;
             }
-            filterChain.doFilter(request, response);
+
+            // 4. Lấy UserDetails
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(username);
+
+            // 5. Kiểm tra tài khoản
+            if (!userDetails.isEnabled()) {
+                sendError(response, 401, "Account is disabled");
+                return;
+            }
+
+            // 6. Debug Role
+            System.out.println("Username: " + userDetails.getUsername());
+            System.out.println("User Roles: " + userDetails.getAuthorities());
+
+            // 7. Tạo Authentication
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+            authentication.setDetails(
+                    new WebAuthenticationDetailsSource()
+                            .buildDetails(request)
+            );
+
+            // 8. Lưu Authentication vào SecurityContext
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+
         } catch (Exception e) {
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
+            // Chỉ bắt lỗi trong quá trình xác thực
+            SecurityContextHolder.clearContext();
 
-            response.getWriter().write("""
-                    {
-                        "code": 401,
-                        "success": false,
-                        "message": "Invalid or expired JWT token"
-                    }
-                    """);
+            logger.error("JWT authentication failed", e);
+
+            sendError(response, 401, "Invalid or expired JWT token");
+            return;
         }
+
+        // 9. Tiếp tục xử lý request
+        // Đặt ngoài try-catch để không bắt lỗi Controller/Service
+        filterChain.doFilter(request, response);
+    }
+
+    private void sendError(
+            HttpServletResponse response,
+            int status,
+            String message
+    ) throws IOException {
+
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+
+        response.getWriter().write("""
+                {
+                    "code": %d,
+                    "success": false,
+                    "message": "%s"
+                }
+                """.formatted(status, message));
     }
 }

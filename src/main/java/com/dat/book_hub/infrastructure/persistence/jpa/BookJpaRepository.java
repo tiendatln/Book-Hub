@@ -19,7 +19,7 @@ public interface BookJpaRepository extends JpaRepository<Book, Long> {
     """,
             nativeQuery = true
     )
-    List<Book> findByUsername(@Param("username") String username);
+    List<Book> findBookByUser_Username(@Param("username") String username);
 
     @Query(
             value = """

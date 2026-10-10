@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.dat.book_hub.application.dto.request.Book.BookRequest;
+import com.dat.book_hub.application.dto.request.Book.CreateBookRequest;
 import com.dat.book_hub.application.dto.response.Book.BookResponse;
 import com.dat.book_hub.domain.entity.Book;
 
@@ -18,4 +19,9 @@ public interface BookMapper {
     BookResponse tBookResponse(Book book);
 
     Book tBook(BookRequest bookRequest);
+
+    Book tBook(BookResponse bookResponse);
+    
+    @Mapping(target = "thumbnail", ignore = true)
+    Book tBookCreate(CreateBookRequest bookRequest);
 }

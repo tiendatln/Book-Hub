@@ -19,7 +19,7 @@ public class BookRepositoryImpl implements BookRepository{
     @Override
     public List<Book> getBookByUserName(String username) {
         // TODO Auto-generated method stub
-        return this.bookRepository.findByUsername(username);
+        return this.bookRepository.findBookByUser_Username(username);
     }
 
     @Override
@@ -39,6 +39,12 @@ public class BookRepositoryImpl implements BookRepository{
     public List<Book> getBooksPage(String search, String author, String tag, int start, int current) {
         // TODO Auto-generated method stub
         return this.bookRepository.findBooksPage(search, author, tag, start, current);
+    }
+
+    @Override
+    public Book getBookById(Long bookId) {
+        // TODO Auto-generated method stub
+        return this.bookRepository.findById(bookId).orElse(null);
     }
 
 }
